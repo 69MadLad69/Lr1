@@ -15,6 +15,7 @@ namespace Lr1{
             kirgo.WinGame(bober);
             kirgo.LoseGame(tilt);
             kirgo.LoseGame(chokopie);
+            kirgo.WinGame(bober);
             chokopie.LoseGame(tilt);
             Oleja.GetStats();
             kirgo.GetStats();
