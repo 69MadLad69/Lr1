@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Lr1{
     public class GameAccount{
@@ -6,43 +7,49 @@ namespace Lr1{
         private int CurrentRating = 1;
         private int GamesCount = 0;
         public static Random randID = new Random();
-        private int Id = randID.Next();
+        private int gameID = randID.Next();
         public static Random randRating = new Random();
-        public GamesList gamesList = new GamesList();
+        public List<Game> gameList = new List<Game>();
         public GameAccount(string userName){
             UserName = userName;
         }
-        
-        public void WinGame(GameAccount Opponent){
+
+        public void decideGameResult(GameAccount Opponent,String GameResult){
             int RatingAmount = randRating.Next(35);
-            CurrentRating += RatingAmount;
-            GamesCount++;
-            int GameID = Id + 1;
-            Id = GameID;
-            gamesList.addToGameList(GameID,RatingAmount,Opponent.UserName,"Win");
-            if(Opponent.CurrentRating - RatingAmount < 1){
-                Opponent.CurrentRating = 1;
+            int ID = gameID+GamesCount;
+            if (GameResult == "Win" || GameResult == "W"){
+                WinGame(RatingAmount);
+                Opponent.LoseGame(RatingAmount);
+                Game winGame = new Game(ID, RatingAmount, Opponent.UserName, "Win");
+                Game loseGame = new Game(ID, RatingAmount, UserName, "Lose");
+                gameList.Add(winGame);
+                Opponent.gameList.Add(loseGame);
+            }else{
+                if (GameResult == "Lose" || GameResult == "L"){
+                    LoseGame(RatingAmount);
+                    Opponent.WinGame(RatingAmount);
+                    Game loseGame = new Game(ID, RatingAmount, Opponent.UserName, "Lose");
+                    Game winGame = new Game(ID, RatingAmount, UserName, "Win");
+                    gameList.Add(loseGame);
+                    Opponent.gameList.Add(winGame);
+                }
+                else{
+                    Console.WriteLine("Error! Помилка при вирішенні результату гри!");
+                }
             }
-            else{
-                Opponent.CurrentRating -= RatingAmount;
-            }
-            Opponent.GamesCount++;
-            Opponent.gamesList.addToGameList(GameID,RatingAmount,UserName,"Lose");
         }
 
-        public void LoseGame(GameAccount Opponent){
-            int RatingAmount = randRating.Next(35);
+        public void WinGame(int RatingAmount){
+            GamesCount++;
+            CurrentRating += RatingAmount;
+        }
+
+        public void LoseGame(int RatingAmount){
             CurrentRating -= RatingAmount;
             if (CurrentRating < 1){
                 CurrentRating = 1;
             }
             GamesCount++;
-            int GameID = Id + 1;
-            Id = GameID;
-            gamesList.addToGameList(GameID,RatingAmount,Opponent.UserName,"Lose");
-            Opponent.CurrentRating += RatingAmount;
-            Opponent.GamesCount++;
-            Opponent.gamesList.addToGameList(GameID,RatingAmount,UserName,"Win");
         }
 
         public void GetStats(){
@@ -50,7 +57,23 @@ namespace Lr1{
             Console.WriteLine(UserName+" stats:");
             Console.WriteLine("| Current rating: "+CurrentRating+" | Games played: "+GamesCount+" |");
             Console.WriteLine();
-            gamesList.printGameList();
+            foreach (var Game in gameList){
+                Console.WriteLine("|\t Opponent: "+Game.OpponentName+" \t|\t Game result: "+Game.GameResult+" \t|\t Game rating:"+Game.RatingAmount+"  \t|\t Game ID:"+Game.GameId+" \t|");
+            }
+        }
+    }
+    public class Game{
+        public Game nextGame;
+        public int GameId;
+        public int RatingAmount;
+        public string OpponentName;
+        public string GameResult;
+
+        public Game(int gameId, int ratingAmount, string opponentName, string gameResult){
+            GameId = gameId+1;
+            RatingAmount = ratingAmount;
+            OpponentName = opponentName;
+            GameResult = gameResult;
         }
     }
 }
